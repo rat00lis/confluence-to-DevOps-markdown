@@ -22,7 +22,7 @@ class Bootstrap
     pathResource = _path.resolve pathResource
     pathResult = _path.resolve pathResult
 
-    logger = new Logger Logger.INFO
+    logger = new Logger Logger.DEBUG
     utils = new Utils _fs, _path, _ncp, logger
     formatter = new Formatter _cheerio, utils, logger
     pageFactory = new PageFactory formatter, utils

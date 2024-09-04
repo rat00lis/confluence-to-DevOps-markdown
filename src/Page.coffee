@@ -35,7 +35,11 @@ class Page
       indexName = @content.find('#breadcrumbs .first').text().trim()
       title.replace indexName + ' : ', ''
 
-
+  getBreadcrumbs: () ->
+    #return raw breadcrumbs
+    breadcrumbs = @content.find('#breadcrumbs')
+    return breadcrumbs
+  
   ###*
   # Converts HTML file at given path to MD formatted text.
   # @return {string} Content of a file parsed to MD
