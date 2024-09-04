@@ -1,6 +1,6 @@
-# Confluence to Markdown converter which is actually working
+# Confluence to Markdown DevOps converter.
 
-Convert [Confluence HTML export](#conflhowto) to Markdown
+Convert Confluence HTML export to Markdown that meets the DevOps wiki format.
 
 
 ## Requirements
@@ -35,31 +35,8 @@ parameter | description
 `<pathResult>` | Directory to where the output will be generated to. Defaults to current working directory
 
 
-## Process description<a name="process-description"></a>
-
-- Confluence page IDs in HTML file names and links are replaced with that pages' heading
-- overall index.md is created linking all Confluence spaces - their indexes
-- images and other inserted attachments are linked to generated markdown
-  - whole `images` and `attachments` directories are copied to resulting directory
-    - there is no checking done whether perticular file/image is used or not
-- markdown links to internal pages are generated without the trailing **.md** extension to comply to [gitit] expectations
-  - this can be changed by finding all occurances of `gitit requires link to pages without .md extension` in the `.coffee` files and adding the extension there.
-  - or you can send a PR ;)
-- the pandoc utility can accept quite a few options to alter its default behavior
-  - those can be passed to it by adding them to `@outputTypesAdd`, `@outputTypesRemove`, `@extraOptions` properties in the [`App.coffee`](src/App.coffee) file
-  - or you can send a PR ;)
-  - here is the [list of options][pandoc-options] pandoc can accept
-- throughout the application a single console logger is used, its default verbosity is set to INFO
-  - you can change the verbosity to one of DEBUG, INFO, WARNING, ERROR levels in the [`Logger.coffee`](src/App.coffee) file
-  - or you can send a PR ;)
-- a series of formatter rules is applied to the HTML text of Confluence page for it to be converted properly
-  - you can view and/or change them in the [`Page.coffee`](src/Page.coffee) file
-  - the rules themselves are located in the [`Formatter.coffee`](src/Formatter.coffee) file
-
-
-### Room for improvement
-
-If you happen to find something not to your liking, you are welcome to send a PR. Some good starting points are mentioned in the [Process description](#process-description) section above.
+## Original process description
+For the original description, including areas for improvement and limitations, please refer to the original repository from which this one is forked.
 
 
 ### Export to HTML
@@ -70,6 +47,7 @@ Note that if the converter does not know how to handle a style, HTML to Markdown
 ## Step by step guide for Confluence data export<a name="conflhowto"></a>
 
 1. Go to the space and choose `Space tools > Content Tools on the sidebar`.
+    - If you are in an older version of Confluence, this option might be on the top of the space under Browser > Space Operations 
 2. Choose Export. This option will only be visible if you have the **Export Space** permission.
 3. Select HTML then choose Next.
 4. Decide whether you need to customize the export:
@@ -77,15 +55,30 @@ Note that if the converter does not know how to handle a style, HTML to Markdown
   - Select Custom Export if you want to export a subset of pages, or to exclude comments from the export.
 5. Extract zip
 
-**WARNING**  
-Please note that Blog will **NOT** be exported to HTML. You have to copy it manually or export it to XML or PDF. But those format cannot be processed by this utility.
-
-
-# Attribution
-
-Thanks to Eric White for a starting point.
+## Step by step guide for converting html files to DevOps wiki mardown
+1. For all spaces to migrate.
+    1.1. Run the script with the extracted html export folder as a parameter, as well as the output path.
+    ```
+    npm run start <pathResource> <pathResult>
+    ```
+    1.2. Once the convertion is done, use the *devops_organizer.py* script. This will create a new folder with all the files reorganized and re-linked based on their supossed path. 
+      - Make sure the order of the paths is correct.
+      - Also, make sure to use the folder **inside** of the output folder, since that is the one with all the markdown files for the convertion.
+    ```
+    py devops_organizer.py <output_path> <folder_path>
+    ``` 
+    1.3. To add the original dates of creation and authors, use the *dates_includer.py* script, that will add a line of text at the end of all files including their original creation.
+      - For this, you will need to provide:
+        - The original **HTML** folder with all the htmls files inside.
+        - The converted **MD** folder created in the previous step.
+        - An output directory.
+    ```
+    py dates_includer.py <html_folder> <md_folder> <output_folder>
+    ```
+2. Open the root directory for the migrated spaces (the directory that contains all the exported folders) and make sure the links are working properly.
+3. Submit your project into a DevOps repository.
+4. Go to Overview > Wiki > Options (dots in the top of the table of content) and Publish your code as wiki.
+5. Your confluence space was succesfully migrated to DevOps wiki :)
 
 
 [pandoc]: http://pandoc.org/installing.html
-[pandoc-options]: http://hackage.haskell.org/package/pandoc
-[gitit]: https://github.com/jgm/gitit/
